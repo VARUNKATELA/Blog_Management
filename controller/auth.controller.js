@@ -47,13 +47,13 @@ export class AuthController {
             const refreshToken = jwt.sign({ id: user.id }, JWT_REFRESH_TOKEN_KEY);
 
             let device = await Device.findOne({
-                where: { userId: user.id, deviceId: body.deviceId }
+                where: { userId: user.id, deviceId: req.body.deviceId }
             });
 
             if (device) {
                 await device.update({
-                    accessToken: token.accessToken,
-                    refreshToken: token.refreshToken,
+                    accessToken: accessToken,
+                    refreshToken: refreshToken,
                 })
             } else {
                 await Device.create({
@@ -64,7 +64,7 @@ export class AuthController {
                 });
             }
 
-            return responseSender(res, 'Logged in successfully', StatusCode.OK);
+            return responseSender(res, 'Logged in successfully', StatusCode.OK, { device, user });
         } catch (error) {
             if (error.name === 'ValidationError') {
                 return responseSender(res, 'Validation failed', StatusCode.BADREQUEST, error.errors);
@@ -84,7 +84,7 @@ export class AuthController {
             const token = jwt.verify(JWToken, process.env.JWT_REFRESH_TOKEN_KEY);
             dataNotFound(token, StringConst.INVALID_TOKEN, StatusCode.UNAUTHORIZED);
 
-            const user = await User.findByPk(token.userId);
+            const user = await User.findByPk(token.id);
             dataNotFound(user, 'User', StatusCode.NOT_FOUND, true);
 
             const device = await Device.findOne({ where: { refreshToken: JWToken }, });

@@ -1,13 +1,15 @@
 import express from "express";
 import { isAuth } from "../middleware/auth.middleware.js";
-// import { AuthController } from "../controller/auth.controller.js";
+import { BlogController } from "../controller/blog.controller.js";
 
 const router = express.Router();
 
-// router.post('/login', AuthController.login);
-// router.get('/regenerate-token', AuthController.createAccessFromRefreshToken);
-// router.post('/forget-password', AuthController.forgetPassword);
+router.post('/create-blog', isAuth, BlogController.createBlog);
+router.get('/get-blog', isAuth, BlogController.getBlog);
+router.get('/get-blog-detail', isAuth, BlogController.getBlogDetail);
+router.post('/update-blog', isAuth, BlogController.updateBlog);
+router.get('/delete-blog', isAuth, BlogController.deleteBlog);
 
-// router.get('/logout', isAuth, AuthController.logOut);
+router.get('/delete-document', isAuth, BlogController.deleteDocument);
 
 export default router;

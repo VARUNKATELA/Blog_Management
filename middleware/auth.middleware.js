@@ -14,7 +14,7 @@ export const isAuth = async (req, res, next) => {
         const token = jwt.verify(JWToken, process.env.JWT_ACCESS_TOKEN_KEY);
         dataNotFound(token, 'Invalid Token', StatusCode.UNAUTHORIZED)
 
-        const user = await User.findByPk(token.userId);
+        const user = await User.findByPk(token.id);
         dataNotFound(user, 'User', StatusCode.NOT_FOUND, true);
         req.userId = user.id;
 

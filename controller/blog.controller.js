@@ -119,7 +119,7 @@ export class BlogController {
                 }
             }
 
-            return responseSender(res, 'Blog Created', StatusCode.CREATED, blog);
+            return responseSender(res, 'Blog Created', StatusCode.OK, blog);
         } catch (error) {
             if (error.name === 'ValidationError') {
                 return responseSender(res, 'Validation failed', StatusCode.BADREQUEST, error.errors);
