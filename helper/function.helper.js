@@ -36,3 +36,7 @@ export const responseSender = (res, message, statuscode, data) => {
         status: statuscode == 200 || statuscode == 201 ? true : false,
     });
 };
+
+export const showLog = (message) => {
+    console.log(message, new Date().toISOString());
+}

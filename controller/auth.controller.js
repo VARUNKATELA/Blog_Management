@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { User, Device, } from '../models/index.js';
-import { dataFound, dataNotFound, parameterNotFound, responseSender, } from '../helper/function.helper.js';
+import { dataFound, dataNotFound, parameterNotFound, responseSender, showLog, } from '../helper/function.helper.js';
 import { StatusCode } from '../server/statusCode.js';
 import { StringConst } from '../server/stringConst.js';
 import { userLoginValidator, userSignupValidator } from '../validations/user.validation.js';
@@ -12,6 +12,7 @@ export class AuthController {
 
     static signup = async (req, res, next) => {
         try {
+            showLog('Signup api called');
             await userSignupValidator.validate(req.body, { abortEarly: false });
 
             const isThere = await User.findOne({ where: { email: req.body.email, phone: req.body.phone } });
@@ -24,6 +25,7 @@ export class AuthController {
 
             await Device.create({ deviceId: req.body.deviceId, accessToken, refreshToken, userId: user.id });
 
+            showLog('User created');
             return responseSender(res, 'User created successfully', StatusCode.CREATED, user);
         } catch (error) {
             if (error.name === 'ValidationError') {
@@ -35,6 +37,8 @@ export class AuthController {
 
     static login = async (req, res, next) => {
         try {
+            showLog('Login api called');
+
             await userLoginValidator.validate(req.body, { abortEarly: false });
 
             const user = await User.findOne({ where: { email: req.body.email } });
@@ -63,6 +67,7 @@ export class AuthController {
                     userId: user.id
                 });
             }
+            showLog('Login succesfully');
 
             return responseSender(res, 'Logged in successfully', StatusCode.OK, { device, user });
         } catch (error) {
@@ -75,6 +80,8 @@ export class AuthController {
 
     static createAccessFromRefreshToken = async (req, res, next) => {
         try {
+            showLog('Regenerate Token api');
+
             const header = req.get('Authorization');
             dataNotFound(header, 'Token', StatusCode.NOT_FOUND, true);
 
@@ -94,6 +101,8 @@ export class AuthController {
 
             await device.update({ accessToken: accessToken });
 
+            showLog('Token generated');
+
             return responseSender(res, 'Token regenrated', StatusCode.OK, {
                 ...user.dataValues,
                 accessToken: accessToken,
@@ -106,8 +115,12 @@ export class AuthController {
 
     static logOut = async (req, res, next) => {
         try {
+            showLog('Logout api called');
+
             parameterNotFound(req.query.deviceId, 'deviceId');
             await Device.destroy({ where: { deviceId: req.query.deviceId }, force: true, });
+            showLog('User logged out successfullyF');
+
             return responseSender(res, 'Logged out', StatusCode.OK);
         } catch (error) {
             next(error);
